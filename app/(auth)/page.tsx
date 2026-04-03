@@ -109,17 +109,12 @@ const page = () => {
         <div className="w-full mx-auto text-center max-w-screen-xl p-4 flex max-md:flex-col md:items-center md:justify-between">
           <span className="text-sm text-gray-500 sm:text-center">
             © {new Date().getFullYear()}{" "}
-              
+
             <span className="hover:text-primary-500 hover:cursor-pointer">
-              ResumeCraft
+              ResumeX
             </span>
             . All Rights Reserved.
           </span>
-          <Link href="https://github.com/exclusiveabhi" className="me-4 md:me-6">
-            <span className="hover:text-primary-500 mt-3 text-sm font-medium text-gray-500 sm:mt-0">
-              Made with ❤️ by Abhishek
-            </span>
-          </Link>
         </div>
       </footer>
     </div>

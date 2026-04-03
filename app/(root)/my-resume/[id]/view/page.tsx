@@ -17,7 +17,7 @@ export async function generateMetadata({
 
   if (resume?.firstName === undefined && resume?.lastName === undefined) {
     return {
-      title: "ResumeCraft - Professional AI Resume Builder",
+      title: "ResumeX - Professional AI Resume Builder",
       description:
         "Generate a polished, professional resume in just a few clicks with our AI-powered resume builder.",
     };
@@ -25,8 +25,8 @@ export async function generateMetadata({
 
   return {
     title: `${resume?.firstName}${resume?.firstName && " "}
-    ${resume?.lastName}${resume?.lastName && " "}- ResumeCraft`,   //download resume name !
-    description: `${resume?.firstName} ${resume?.lastName}'s Resume. Powered by ResumeCraft.`,
+    ${resume?.lastName}${resume?.lastName && " "}- ResumeX`,   //download resume name !
+    description: `${resume?.firstName} ${resume?.lastName}'s Resume. Powered by ResumeX.`,
   };
 }
 

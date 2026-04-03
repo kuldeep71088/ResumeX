@@ -6,30 +6,67 @@ import {
   HarmBlockThreshold,
 } from "@google/generative-ai";
 
+const useOpenRouter = process.env.USE_OPENROUTER === "true";
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash",
+  model: "gemini-1.5-pro",
 });
 
 const generationConfig = {
   temperature: 1,
   topP: 0.95,
-  topK: 64,
+  topK: 40,
   maxOutputTokens: 8192,
-  // responseMimeType: "text/plain",
-  responseMimeType: "application/json",
 };
 
+function cleanJsonResponse(text: string): string {
+  let cleaned = text.trim();
+  if (cleaned.startsWith('```json')) {
+    cleaned = cleaned.replace(/^```json\n?/, '').replace(/\n?```$/, '');
+  } else if (cleaned.startsWith('```')) {
+    cleaned = cleaned.replace(/^```\n?/, '').replace(/\n?```$/, '');
+  }
+  return cleaned.trim();
+}
+
 async function askGemini(prompt: string) {
-  const chatSession = model.startChat({
-    generationConfig,
-    history: [],
-  });
+  if (useOpenRouter) {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+    const data = await response.json();
+    if (!data.choices?.[0]?.message?.content) {
+      throw new Error(`OpenRouter API error: ${JSON.stringify(data)}`);
+    }
+    return cleanJsonResponse(data.choices[0].message.content);
+  }
 
-  const result = await chatSession.sendMessage(prompt);
-
-  return result.response.text();
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt + "\n\nIMPORTANT: Respond ONLY with valid JSON, no other text." }] }],
+        generationConfig: { temperature: 1, topP: 0.95, topK: 40, maxOutputTokens: 8192 },
+      }),
+    }
+  );
+  const data = await response.json();
+  if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
+    throw new Error(`Gemini API error: ${JSON.stringify(data)}`);
+  }
+  return cleanJsonResponse(data.candidates[0].content.parts[0].text);
 }
 
 export async function generateSummary(jobTitle: string) {
