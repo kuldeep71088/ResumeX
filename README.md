@@ -1,4 +1,4 @@
-# ResumeCraft
+# ResumeX
 
 **ResumeCraft** is an AI-powered resume builder designed to help users create professional, customized resumes with ease. By leveraging AI, ResumeCraft ensures that each resume is tailored to highlight the user’s skills, experience, and achievements effectively.
 
